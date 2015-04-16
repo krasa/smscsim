@@ -81,7 +81,7 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 					handleDelayedRecord(delayedRecord);
 				}
 			} catch (InterruptedException ex) {
-				logger.info("Received interupt, terminating " + Thread.currentThread().getName());
+				logger.info("Received interrupt, terminating " + Thread.currentThread().getName());
 				return;
 			} catch (Exception ex) {
 				logger.error("Error when handling delayed record", ex);
