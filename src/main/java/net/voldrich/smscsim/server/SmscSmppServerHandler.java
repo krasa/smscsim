@@ -55,7 +55,7 @@ public class SmscSmppServerHandler implements SmppServerHandler {
 		}
 
 		sessionManager.removeServerSession(sessionId, session);
-		SmscSmppSessionHandler smscSmppSessionHandler = handlerMap.get(sessionId);
+		SmscSmppSessionHandler smscSmppSessionHandler = handlerMap.remove(sessionId);
 		if (smscSmppSessionHandler != null) {
 			smscSmppSessionHandler.destroy();
 		}
