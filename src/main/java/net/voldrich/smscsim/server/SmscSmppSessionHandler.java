@@ -73,6 +73,6 @@ public class SmscSmppSessionHandler extends DefaultSmppSessionHandler {
 	}
 
 	public void destroy() {
-		deliverSender.stop();
+		deliverSender.scheduleStop();
 	}
 }

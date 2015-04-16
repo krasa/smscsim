@@ -1,12 +1,12 @@
 package net.voldrich.smscsim.server;
 
-import java.util.concurrent.DelayQueue;
+import java.util.concurrent.*;
 
 import org.slf4j.*;
 
 /**
  * Base implementation for delivery queues.
- **/
+ */
 public abstract class DelayedRequestSender<T extends DelayedRecord> implements RequestSender<T> {
 
 	private static final String DELAYED_QUEUE_HANDLER_THREAD_NAME = "DelayedQueueHandler";
@@ -16,6 +16,8 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 	protected final DelayQueue<T> deliveryReceiptQueue;
 
 	private Thread deliveryReceiptQueueHandlerThread;
+
+	private volatile boolean stop;
 
 	public DelayedRequestSender() {
 		deliveryReceiptQueue = new DelayQueue<T>();
@@ -43,6 +45,13 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 		}
 	}
 
+	public void scheduleStop() {
+		stop = true;
+		if (deliveryReceiptQueue.size() == 0) {
+			stop();
+		}
+	}
+
 	public void stop() {
 		if (deliveryReceiptQueueHandlerThread != null) {
 			deliveryReceiptQueueHandlerThread.interrupt();
@@ -58,13 +67,14 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 
 	/**
 	 * Implementation which terminates when queue is empty
-	 **/
+	 */
 	private final class QueueHandlerUntillEmptyImpl implements Runnable {
 		@Override
 		public void run() {
 			try {
-				for (;;) {
+				for (; ; ) {
 					if (deliveryReceiptQueue.size() == 0) {
+						logger.info("Queue empty, terminating " + Thread.currentThread().getName());
 						return;
 					}
 					T delayedRecord = deliveryReceiptQueue.take();
@@ -83,15 +93,21 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 
 	/**
 	 * Runs indefinitely until an interrupt is caught.
-	 **/
+	 */
 	private final class QueueHandlerImpl implements Runnable {
 		@Override
 		public void run() {
 			try {
-				for (;;) {
+				for (; ; ) {
 					try {
-						T delayedRecord = deliveryReceiptQueue.take();
-						handleDelayedRecord(delayedRecord);
+						if (stop && deliveryReceiptQueue.size() == 0) {
+							logger.info("Queue empty, terminating " + Thread.currentThread().getName());
+							return;
+						}
+						T delayedRecord = deliveryReceiptQueue.poll(5, TimeUnit.SECONDS);
+						if (delayedRecord != null) {
+							handleDelayedRecord(delayedRecord);
+						}
 					} catch (InterruptedException ex) {
 						throw ex;
 					} catch (Exception ex) {
@@ -99,7 +115,7 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 					}
 				}
 			} catch (InterruptedException ex) {
-				logger.info("Received interupt, terminating " + DELAYED_QUEUE_HANDLER_THREAD_NAME);
+				logger.info("Received interrupt, terminating " + Thread.currentThread().getName());
 				return;
 			} finally {
 				deliveryReceiptQueueHandlerThread = null;
