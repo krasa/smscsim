@@ -1,16 +1,15 @@
 package net.voldrich.smscsim.spring.auto;
 
-import net.voldrich.smscsim.spring.DeliveryReceiptScheduler;
+import net.voldrich.smscsim.spring.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import net.voldrich.smscsim.spring.ResponseMessageIdGenerator;
 
 @Component
 public class SmscGlobalConfiguration {
 
 	@Autowired
-	private DelayedRequestSenderImpl deliverSender;
+	private DelayedRequestSenderFactory deliverSenderPool;
 
 	@Autowired
 	private ResponseMessageIdGenerator messageIdGenerator;
@@ -18,15 +17,15 @@ public class SmscGlobalConfiguration {
 	@Autowired
 	private SmppSessionManager sessionManager;
 
-    @Autowired
-    private DeliveryReceiptScheduler deliveryReceiptScheduler;
+	@Autowired
+	private DeliveryReceiptScheduler deliveryReceiptScheduler;
 
-	public DelayedRequestSenderImpl getDeliverSender() {
-		return deliverSender;
+	public DelayedRequestSenderImpl getDeliverSender(String systemId) {
+		return deliverSenderPool.getNewDeliverSender(systemId);
 	}
 
-	public void setDeliverSender(DelayedRequestSenderImpl deliverSender) {
-		this.deliverSender = deliverSender;
+	public void setDeliverSenderPool(DelayedRequestSenderFactory deliverSenderPool) {
+		this.deliverSenderPool = deliverSenderPool;
 	}
 
 	public ResponseMessageIdGenerator getMessageIdGenerator() {
@@ -45,11 +44,11 @@ public class SmscGlobalConfiguration {
 		this.sessionManager = sessionManager;
 	}
 
-    public DeliveryReceiptScheduler getDeliveryReceiptScheduler() {
-        return deliveryReceiptScheduler;
-    }
+	public DeliveryReceiptScheduler getDeliveryReceiptScheduler() {
+		return deliveryReceiptScheduler;
+	}
 
-    public void setDeliveryReceiptScheduler(DeliveryReceiptScheduler deliveryReceiptScheduler) {
-        this.deliveryReceiptScheduler = deliveryReceiptScheduler;
-    }
+	public void setDeliveryReceiptScheduler(DeliveryReceiptScheduler deliveryReceiptScheduler) {
+		this.deliveryReceiptScheduler = deliveryReceiptScheduler;
+	}
 }

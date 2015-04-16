@@ -1,11 +1,12 @@
 package net.voldrich.smscsim.spring;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.PostConstruct;
+
+import net.voldrich.smscsim.spring.auto.*;
+
+import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.voldrich.smscsim.spring.auto.DelayedRequestSenderImpl;
-import net.voldrich.smscsim.spring.auto.SmppSessionManager;
 import com.cloudhopper.smpp.SmppServerSession;
 import com.cloudhopper.smpp.pdu.PduRequest;
 
@@ -15,11 +16,17 @@ public class BaseSender {
 
 	@Autowired
 	private SmppSessionManager sessionManager;
+	@Autowired
+	private DelayedRequestSenderFactory delayedRequestSenderFactory;
 
 	private long sendTimoutMilis = 1000;
 
-	@Autowired
 	private DelayedRequestSenderImpl deliverSender;
+
+	@PostConstruct
+	public void init() throws Exception {
+		deliverSender = delayedRequestSenderFactory.getNewDeliverSender(this.getClass().getSimpleName());
+	}
 
 	protected void send(PduRequest pdu) throws Exception {
 		SmppServerSession session = sessionManager.getNextServerSession();

@@ -2,8 +2,7 @@ package net.voldrich.smscsim.server;
 
 import java.util.concurrent.DelayQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * Base implementation for delivery queues.
@@ -14,7 +13,7 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 
 	private static final Logger logger = LoggerFactory.getLogger(DelayedRequestSender.class);
 
-	private final DelayQueue<T> deliveryReceiptQueue;
+	protected final DelayQueue<T> deliveryReceiptQueue;
 
 	private Thread deliveryReceiptQueueHandlerThread;
 
@@ -28,16 +27,18 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 	public void scheduleDelivery(T record) {
 		deliveryReceiptQueue.offer(record);
 	}
-	
+
 	@Override
 	public void scheduleDelivery(T record, int minDelayMs, int randomDeltaMs) {
 		record.setDeliverTime(minDelayMs, randomDeltaMs);
 		deliveryReceiptQueue.offer(record);
 	}
 
-	public void start() {
+	public void start(String systemId) {
 		if (deliveryReceiptQueueHandlerThread == null) {
-			deliveryReceiptQueueHandlerThread = new Thread(new QueueHandlerImpl(), DELAYED_QUEUE_HANDLER_THREAD_NAME);
+			deliveryReceiptQueueHandlerThread = new Thread(new QueueHandlerImpl(), DELAYED_QUEUE_HANDLER_THREAD_NAME
+					+ "-" + systemId);
+			deliveryReceiptQueueHandlerThread.setDaemon(true);
 			deliveryReceiptQueueHandlerThread.start();
 		}
 	}
@@ -48,8 +49,9 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 		}
 	}
 
-	public Thread startThreadWhichTerminatesWhenQueueEmpty() {
-		Thread thread = new Thread(new QueueHandlerUntillEmptyImpl(), DELAYED_QUEUE_HANDLER_THREAD_NAME);
+	public Thread startThreadWhichTerminatesWhenQueueEmpty(String systemId) {
+		Thread thread = new Thread(new QueueHandlerUntillEmptyImpl(), DELAYED_QUEUE_HANDLER_THREAD_NAME + "-"
+				+ systemId);
 		thread.start();
 		return thread;
 	}
