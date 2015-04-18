@@ -69,7 +69,7 @@ public class DelayedRequestSenderManager {
 						log.info("Discarding new messages({})", totalQueued);
 						queueBlocked = true;
 						notifySenders();
-					} else if (queueBlocked && totalQueued < queuesLimit / 10) {
+					} else if (queueBlocked && totalQueued < (queuesLimit / 2)) {
 						log.info("Accepting new messages again.");
 						queueBlocked = false;
 						notifySenders();
