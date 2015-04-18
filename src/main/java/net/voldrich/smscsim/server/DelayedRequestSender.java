@@ -36,10 +36,10 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 		deliveryReceiptQueue.offer(record);
 	}
 
-	public void start(String systemId) {
+	public void start(String id) {
 		if (deliveryReceiptQueueHandlerThread == null) {
 			deliveryReceiptQueueHandlerThread = new Thread(new QueueHandlerImpl(), DELAYED_QUEUE_HANDLER_THREAD_NAME
-					+ "-" + systemId);
+					+ "-" + id);
 			deliveryReceiptQueueHandlerThread.setDaemon(true);
 			deliveryReceiptQueueHandlerThread.start();
 		}

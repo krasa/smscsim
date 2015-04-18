@@ -23,9 +23,9 @@ public class SmscSmppSessionHandler extends DefaultSmppSessionHandler {
 
 	private DeliveryReceiptScheduler deliveryReceiptScheduler;
 
-	public SmscSmppSessionHandler(SmppServerSession session, SmscGlobalConfiguration config) {
+	public SmscSmppSessionHandler(SmppServerSession session, SmscGlobalConfiguration config, Long sessionId) {
 		this.sessionRef = new WeakReference<SmppSession>(session);
-		this.deliverSender = config.getDeliverSender(session.getConfiguration().getSystemId());
+		this.deliverSender = config.getDeliverSender(session.getConfiguration().getSystemId() + "-" + sessionId);
 		this.messageIdGenerator = config.getMessageIdGenerator();
 		this.deliveryReceiptScheduler = config.getDeliveryReceiptScheduler();
 	}

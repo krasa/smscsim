@@ -20,8 +20,8 @@ public class SmscGlobalConfiguration {
 	@Autowired
 	private DeliveryReceiptScheduler deliveryReceiptScheduler;
 
-	public DelayedRequestSenderImpl getDeliverSender(String systemId) {
-		return deliverSenderPool.getNewDeliverSender(systemId);
+	public DelayedRequestSenderImpl getDeliverSender(String id) {
+		return deliverSenderPool.getNewDeliverSender(id);
 	}
 
 	public void setDeliverSenderPool(DelayedRequestSenderFactory deliverSenderPool) {

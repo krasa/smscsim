@@ -8,9 +8,9 @@ public class DelayedRequestSenderFactory {
 	@Autowired
 	private SmppSessionManager sessionManager;
 
-	public DelayedRequestSenderImpl getNewDeliverSender(String systemId) {
+	public DelayedRequestSenderImpl getNewDeliverSender(String id) {
 		DelayedRequestSenderImpl delayedRequestSender = new DelayedRequestSenderImpl(sessionManager);
-		delayedRequestSender.start(systemId);
+		delayedRequestSender.start(id);
 		return delayedRequestSender;
 	}
 }

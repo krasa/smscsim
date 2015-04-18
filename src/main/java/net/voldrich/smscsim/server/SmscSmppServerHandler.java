@@ -40,7 +40,7 @@ public class SmscSmppServerHandler implements SmppServerHandler {
 		logger.info("Session created: {}", sessionId);
 		// need to do something it now (flag we're ready)
 		// we need to create one session handler instance per session
-		SmscSmppSessionHandler smppSessionHandler = new SmscSmppSessionHandler(session, config);
+		SmscSmppSessionHandler smppSessionHandler = new SmscSmppSessionHandler(session, config, sessionId);
 		session.serverReady(smppSessionHandler);
 		handlerMap.put(sessionId, smppSessionHandler);
 		sessionManager.addServerSession(session);
