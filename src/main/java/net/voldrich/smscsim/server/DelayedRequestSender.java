@@ -18,6 +18,7 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 	private Thread deliveryReceiptQueueHandlerThread;
 
 	private volatile boolean stop;
+	private volatile boolean discardNewDeliveries;
 
 	public DelayedRequestSender() {
 		deliveryReceiptQueue = new DelayQueue<T>();
@@ -25,15 +26,27 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 
 	protected abstract void handleDelayedRecord(T delayedRecord) throws Exception;
 
+	public int queueSize() {
+		return deliveryReceiptQueue.size();
+	}
+
+	public void setDiscardNewDeliveries(boolean discardNewDeliveries) {
+		this.discardNewDeliveries = discardNewDeliveries;
+	}
+
 	@Override
 	public void scheduleDelivery(T record) {
-		deliveryReceiptQueue.offer(record);
+		if (!discardNewDeliveries) {
+			deliveryReceiptQueue.offer(record);
+		}
 	}
 
 	@Override
 	public void scheduleDelivery(T record, int minDelayMs, int randomDeltaMs) {
-		record.setDeliverTime(minDelayMs, randomDeltaMs);
-		deliveryReceiptQueue.offer(record);
+		if (!discardNewDeliveries) {
+			record.setDeliverTime(minDelayMs, randomDeltaMs);
+			deliveryReceiptQueue.offer(record);
+		}
 	}
 
 	public void start(String id) {
@@ -59,8 +72,7 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 	}
 
 	public Thread startThreadWhichTerminatesWhenQueueEmpty(String systemId) {
-		Thread thread = new Thread(new QueueHandlerUntillEmptyImpl(), DELAYED_QUEUE_HANDLER_THREAD_NAME + "-"
-				+ systemId);
+		Thread thread = new Thread(new QueueHandlerUntilEmptyImpl(), DELAYED_QUEUE_HANDLER_THREAD_NAME + "-" + systemId);
 		thread.start();
 		return thread;
 	}
@@ -68,11 +80,11 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 	/**
 	 * Implementation which terminates when queue is empty
 	 */
-	private final class QueueHandlerUntillEmptyImpl implements Runnable {
+	private final class QueueHandlerUntilEmptyImpl implements Runnable {
 		@Override
 		public void run() {
 			try {
-				for (; ; ) {
+				for (;;) {
 					if (deliveryReceiptQueue.size() == 0) {
 						logger.info("Queue empty, terminating " + Thread.currentThread().getName());
 						return;
@@ -98,7 +110,7 @@ public abstract class DelayedRequestSender<T extends DelayedRecord> implements R
 		@Override
 		public void run() {
 			try {
-				for (; ; ) {
+				for (;;) {
 					try {
 						if (stop && deliveryReceiptQueue.size() == 0) {
 							logger.info("Queue empty, terminating " + Thread.currentThread().getName());

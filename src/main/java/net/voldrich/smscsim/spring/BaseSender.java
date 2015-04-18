@@ -17,7 +17,7 @@ public class BaseSender {
 	@Autowired
 	private SmppSessionManager sessionManager;
 	@Autowired
-	private DelayedRequestSenderFactory delayedRequestSenderFactory;
+	private DelayedRequestSenderManager delayedRequestSenderManager;
 
 	private long sendTimoutMilis = 1000;
 
@@ -25,7 +25,7 @@ public class BaseSender {
 
 	@PostConstruct
 	public void init() throws Exception {
-		deliverSender = delayedRequestSenderFactory.getNewDeliverSender(this.getClass().getSimpleName());
+		deliverSender = delayedRequestSenderManager.getNewDeliverSender(this.getClass().getSimpleName());
 	}
 
 	protected void send(PduRequest pdu) throws Exception {

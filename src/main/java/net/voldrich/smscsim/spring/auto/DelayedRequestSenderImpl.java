@@ -13,7 +13,7 @@ public class DelayedRequestSenderImpl extends DelayedRequestSender<DelayedRecord
 
 	private SmppSessionManager sessionManager;
 
-	private long sendTimoutMilis = 1000;
+	private long sendTimeoutMillis = 10000;
 
 	public DelayedRequestSenderImpl(SmppSessionManager sessionManager) {
 		this.sessionManager = sessionManager;
@@ -24,12 +24,12 @@ public class DelayedRequestSenderImpl extends DelayedRequestSender<DelayedRecord
 		SmppSession session = delayedRecord.getUsedSession(sessionManager);
 		PduRequest request = delayedRecord.getRequest(sessionManager.getNextSequenceNumber());
 		if (session != null && session.isBound()) {
-			session.sendRequestPdu(request, sendTimoutMilis, false);
+			session.sendRequestPdu(request, sendTimeoutMillis, false);
 		} else {
 			logger.info("Session does not exist or is not bound {}. Request not sent {}", session, request);
 		}
 		if (session == null) {
-			logger.info("No sessions for receiving DR, clearing queue");
+			logger.info("No sessions for receiving DR, clearing queue ({})", queueSize());
 			deliveryReceiptQueue.clear();
 		}
 	}
@@ -42,12 +42,12 @@ public class DelayedRequestSenderImpl extends DelayedRequestSender<DelayedRecord
 		this.sessionManager = sessionManager;
 	}
 
-	public long getSendTimoutMilis() {
-		return sendTimoutMilis;
+	public long getSendTimeoutMillis() {
+		return sendTimeoutMillis;
 	}
 
-	public void setSendTimoutMilis(long sendTimoutMilis) {
-		this.sendTimoutMilis = sendTimoutMilis;
+	public void setSendTimeoutMillis(long sendTimeoutMillis) {
+		this.sendTimeoutMillis = sendTimeoutMillis;
 	}
 
 }

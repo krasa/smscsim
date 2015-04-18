@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class SmscGlobalConfiguration {
 
 	@Autowired
-	private DelayedRequestSenderFactory deliverSenderPool;
+	private DelayedRequestSenderManager deliverSenderPool;
 
 	@Autowired
 	private ResponseMessageIdGenerator messageIdGenerator;
@@ -24,7 +24,7 @@ public class SmscGlobalConfiguration {
 		return deliverSenderPool.getNewDeliverSender(id);
 	}
 
-	public void setDeliverSenderPool(DelayedRequestSenderFactory deliverSenderPool) {
+	public void setDeliverSenderPool(DelayedRequestSenderManager deliverSenderPool) {
 		this.deliverSenderPool = deliverSenderPool;
 	}
 
