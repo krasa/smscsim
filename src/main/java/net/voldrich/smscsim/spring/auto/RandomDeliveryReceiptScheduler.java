@@ -11,7 +11,7 @@ import java.util.Random;
 @Component
 public class RandomDeliveryReceiptScheduler implements DeliveryReceiptScheduler {
 
-    private int minDelayMs = 5000;
+	private int minDelayMs = 0;
 
     private int randomDeltaMs =  5000;
 
