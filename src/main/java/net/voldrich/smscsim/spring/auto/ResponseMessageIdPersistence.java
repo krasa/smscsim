@@ -12,6 +12,7 @@ import org.springframework.core.io.FileSystemResource;
 import com.google.common.base.Charsets;
 
 public class ResponseMessageIdPersistence {
+
 	private static final Logger log = LoggerFactory.getLogger(ResponseMessageIdPersistence.class);
 
 	private static final FileSystemResource CURRENT = new FileSystemResource("smscsim.messageId.txt");
@@ -27,7 +28,7 @@ public class ResponseMessageIdPersistence {
 	}
 
 	public long loadMessageId(long initialMessageIdValue) {
-		Long messageId;
+		long messageId;
 		Long previous = loadIfExists(CURRENT);
 		if (previous == null) {
 			previous = loadIfExists(BACKUP);
@@ -68,6 +69,7 @@ public class ResponseMessageIdPersistence {
 		Runtime.getRuntime().addShutdownHook(new Thread(backupTask));
 
 		Thread periodicBackup = new Thread(new Runnable() {
+
 			@Override
 			public void run() {
 				while (true) {
